@@ -3,7 +3,7 @@ A collection of ipywidgets and scripts adapted to the Ghub tool creation process
 
 ### Adding to other Projects
 <p>Still a work-in-progress project that isn't a standalone Python package, therefore to make use of the code found here 
-this repository must be added as a git [submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to an existing git repository. 
+this repository must be added as a git submodule(https://git-scm.com/book/en/v2/Git-Tools-Submodules) to an existing git repository. 
 Suppose your project <em>awesome-proj</em> is located in <code>~/the/path/to/my/awesome-proj</code>:<br>
 <ol>
   <li>switch to your project's main directory: <em>eg (bash)</em><code>$ cd ~/the/path/to/my/awesome-proj</code></li>
@@ -38,4 +38,4 @@ The ghub-utils submodule can be updated at any time like any other git repositor
 </p>
 
 ### Cloning Repositories with Submodules
-<p>NOTE: when cloning repositories from github with an existing submodule, remember to add the flag <code>--recursive</code>, eg. <code>git clone git@github.com:ruskirin/initmip-cluster.git --recursive</code>. For full solutions see: [https://stackoverflow.com/q/11358082](https://stackoverflow.com/q/11358082)</p>
+<p>NOTE: when cloning repositories from github with an existing submodule, remember to add the flag <code>--recursive</code>, eg. <code>git clone git@github.com:ruskirin/initmip-cluster.git --recursive</code>. For full solutions see: https://stackoverflow.com/q/11358082</p>
