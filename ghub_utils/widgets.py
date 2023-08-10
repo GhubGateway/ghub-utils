@@ -3,8 +3,27 @@ import matplotlib.pyplot as plt
 from IPython.display import display, Javascript
 from hublib import ui
 from pathlib import Path
+from typing import List, Tuple, Union
+
 import files
-from typing import List
+from .types import SelectOption
+
+
+class OptionToggle(widg.HBox):
+    def __init__(self, options: list, **kwargs):
+        children = []
+        for o in options:
+            btn = widg.Button(description=o)
+            children.append(btn)
+
+        super().__init__(children=children, **kwargs)
+
+    def on_click(self, btn_map: dict):
+        for b, func in btn_map.items():
+            btn = None
+            for
+
+            b.on_click(func)
 
 
 class DataSelector(widg.VBox):
