@@ -11,22 +11,22 @@ Suppose your project <em>awesome-proj</em> is located in <code>~/the/path/to/my/
 </ol>
 </p>
 
-<p>To import <code>ghub-utils.ghub\_utils</code> inside your project, its absolute path must first be added to your Python Path. To do that you must first locate your environment's Python <code>site-packages</code> folder:
+<p>To import <code>ghub-utils.ghub_utils</code> inside your project, its absolute path must first be added to your Python Path. To do that you must first locate your environment's Python <code>site-packages</code> folder:
 <ul>
   <li>
   inside any Python instance, run the following code:<br>
     <code>import site</code><br>
     <code>site.getusersitepackages()</code><br>
-  The path will look similar to: <code>/home/user/anaconda3/envs/some\_env/lib/python3.7/site-packages</code>
+  The path will look similar to: <code>/home/user/anaconda3/envs/some_env/lib/python3.7/site-packages</code>
   </li>
 </ul>
 </p>
 
-<p>Next copy the path file <code>ghub-utils/ghub\_utils.pth</code> into the site-packages folder.</p>
+<p>Next copy the path file <code>ghub-utils/ghub_utils.pth</code> into the site-packages folder.</p>
 
-<p>Finally locate the absolute path to your project's <code>ghub-utils</code> directory <code>path/to/your/project/ghub-utils</code> and copy into <code>site-packages/ghub\_utils.pth</code></p>.
+<p>Finally locate the absolute path to your project's <code>ghub-utils</code> directory <code>path/to/your/project/ghub-utils</code> and copy into <code>site-packages/ghub_utils.pth</code></p>.
 
-<p><code>ghub-utils/ghub\_utils</code> is now ready to be imported and used as any package.</p>
+<p><code>ghub-utils/ghub_utils</code> is now ready to be imported and used as any package.</p>
 
 ### Updating ghub-utils
 <p>
