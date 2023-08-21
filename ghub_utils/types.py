@@ -5,7 +5,7 @@ from enum import Enum
 
 class FileType(Enum):
     DIR = 'dir'
-    ANY = None
+    FILE = None
     NETCDF = '.nc'
     CSV = '.csv'
     PICKLE = '.p'

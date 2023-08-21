@@ -3,27 +3,52 @@ import matplotlib.pyplot as plt
 from IPython.display import display, Javascript
 from hublib import ui
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import List, Dict, Callable
 
-import files
+from . import files
 from .types import SelectOption
 
 
 class OptionToggle(widg.HBox):
-    def __init__(self, options: list, **kwargs):
-        children = []
+    """Widget with multiple buttons that trigger a function on press"""
+    def __init__(self, label: str, options: list, **kwargs):
+        """
+        :param options: list of button names
+        :param kwargs:
+        """
+        label_desc = widg.Label(label)
+
+        children = [label_desc,]
         for o in options:
             btn = widg.Button(description=o)
             children.append(btn)
 
         super().__init__(children=children, **kwargs)
 
-    def on_click(self, btn_map: dict):
-        for b, func in btn_map.items():
-            btn = None
-            for
+    def on_click(self, btn_map: Dict[str, Callable]):
+        """
+        Register a function to trigger on click
+        :param btn_map: dictionary of {button description: on click function}
+        """
+        for bname, func in btn_map.items():
+            for b in self.children:
+                if b.description == bname:
+                    b.on_click(func)
 
-            b.on_click(func)
+    def click(self, btn_desc: str):
+        for b in self.children:
+            if b.description == btn_desc:
+                b.click()
+
+    def disable(self, btn_desc):
+        for c in self.children:
+            if c.description == btn_desc:
+                c.disabled = True
+
+    def enable(self, btn_desc):
+        for c in self.children:
+            if c.description == btn_desc:
+                c.disabled = False
 
 
 class DataSelector(widg.VBox):
@@ -39,10 +64,8 @@ class DataSelector(widg.VBox):
         self.data_path: Path = None
 
         # uploaded/selected data
-        label_instr = widg.Label(value='Select data source:')
-        btn_sample = widg.Button(description=self.OPTIONS[0])
-        btn_own = widg.Button(description=self.OPTIONS[1])
-        box_options = widg.HBox((label_instr, btn_sample, btn_own))
+        label_instr = 'Select data source:'
+        box_options = OptionToggle(label_instr, self.OPTIONS)
 
         sel_file = widg.Select(
             options=[],
@@ -92,8 +115,10 @@ class DataSelector(widg.VBox):
             ]
             sel_file.options = personal
 
-        btn_sample.on_click(source_sample)
-        btn_own.on_click(source_own)
+        box_options.on_click(
+            {self.OPTIONS[0]: source_sample,
+             self.OPTIONS[1]: source_own}
+        )
 
         def select(change):
             """File selected from selector"""
@@ -129,7 +154,8 @@ class DataSelector(widg.VBox):
                     # files.dump_data() requires a dictionary
                     d = {name: meta['content']}
                     files.dump_data(files.DIR_SESS_TDATA / name, d, bytes=True)
-                    btn_own.click() # reload list of existing files
+                    # reload list of existing files
+                    box_options.click(self.OPTIONS[1])
 
         btn_up.observe(upload, names='value')
 

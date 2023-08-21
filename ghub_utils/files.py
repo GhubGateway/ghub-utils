@@ -1,11 +1,14 @@
 from pathlib import Path
-from typing import Union
+from typing import Union, List
 import pickle
 import csv
 import os
-
 import matplotlib.pyplot as plt
 import pandas as pd
+from collections import defaultdict
+import regex as re
+
+from .types import FileType
 
 
 FORMAT_DATA_IN = ('.p', '.csv')
@@ -61,7 +64,11 @@ def get_path_relative_to(a: Path, b: Path):
       necessary; required for opening javascript windows
       REF: https://stackoverflow.com/a/43613742/13557629
     """
-    return Path(os.path.relpath(a, b))
+    try:
+        rel = a.relative_to(b)
+        return rel
+    except ValueError:
+        return a
 
 
 def load_data(path: Union[str, Path]):
