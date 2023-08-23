@@ -77,7 +77,7 @@ class DataSelector(widg.VBox):
             desc='Upload',
             accept='.p,.csv',
             multiple=True,
-            dir=files.DIR_SESS_DATA,
+            dir=files.DIR_SESS,
         )
         btn_submit = widg.Button(description='Select')
         btn_submit.disabled = True # disable upon init
@@ -110,7 +110,7 @@ class DataSelector(widg.VBox):
 
             personal = [
                 str(files.get_path_relative_to(p, files.DIR_PROJECT))
-                for p in Path(files.DIR_SESS_TDATA).iterdir()
+                for p in Path(files.DIR_TEMP).iterdir()
                 if p.suffix in files.FORMAT_DATA_IN
             ]
             sel_file.options = personal
@@ -280,7 +280,7 @@ class DataDownloader(ResultsDownloader):
         drop_file_format = self.children[1]
 
         fname = f'{txt_filename.value}.{drop_file_format.value}'
-        fpath = files.DIR_SESS_RESULTS / fname
+        fpath = files.DIR_RESULTS / fname
         files.dump_data(fpath, data, bytes=False)
 
         # need to make path relative to '.' for javascript windows
