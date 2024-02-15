@@ -1,21 +1,18 @@
-from pathlib import Path
-from typing import Union, List
-import pickle
+import atexit
 import csv
 import os
+import pickle
+from pathlib import Path
+from typing import Union
+
 import matplotlib.pyplot as plt
 import pandas as pd
-from collections import defaultdict
-import regex as re
-
-from .types import FileType
-
 
 FORMAT_DATA_IN = ('.p', '.csv')
 FORMAT_IMG_OUT = ('png', 'jpg', 'pdf')
 FORMAT_DATA_OUT = ('csv',)
 
-DIR_PROJECT = Path(__file__).parent.parent.parent
+DIR_PROJECT = Path(__file__).parent.parent
 DIR_SRC = DIR_PROJECT / 'src'
 DIR_BIN = DIR_PROJECT / 'bin'
 DIR_SAMPLE_DATA = DIR_PROJECT / 'data'
@@ -24,7 +21,7 @@ DIR_SAMPLE_DATA = DIR_PROJECT / 'data'
 def setup_local(data_dir: Path):
     """Create the temp and out directories for locally stored data"""
     temp = data_dir / 'temp'
-    out = data_dir / 'results'
+    out = data_dir / 'out'
     temp.mkdir(exist_ok=True)
     out.mkdir(exist_ok=True)
 
@@ -56,9 +53,24 @@ except KeyError:
 
 
 def clear_temp():
-    """Clear the temp data directory -- as per official Ghub recommendations"""
+    """
+    Clear the temp directory
+    """
     for file in DIR_TEMP.iterdir():
-        file.unlink()
+        file.rmdir() if file.is_dir() else file.unlink()
+
+
+def clear_results():
+    """
+    Clear the results data directory -- as per official Ghub recommendations
+    """
+    for file in DIR_OUT.iterdir():
+        file.rmdir() if file.is_dir() else file.unlink()
+
+
+# Register exit cleanup code
+atexit.register(clear_temp)
+atexit.register(clear_results)
 
 
 def get_path_relative_to(a: Path, b: Path):
@@ -67,11 +79,7 @@ def get_path_relative_to(a: Path, b: Path):
       necessary; required for opening javascript windows
       REF: https://stackoverflow.com/a/43613742/13557629
     """
-    try:
-        rel = a.relative_to(b)
-        return rel
-    except ValueError:
-        return a
+    return Path(os.path.relpath(a, b))
 
 
 def load_data(path: Union[str, Path]):
@@ -133,9 +141,10 @@ def dump_data(fpath: Path, data: dict, bytes=False):
 
     else:
         merged_data = pd.DataFrame()
+
         for name, d in data.items():
             # reshape to convert to dataframe
-            d = {f'{name}-{k}': v.reshape(1,-1).tolist()[0] for k,v in d.items()}
+            d = {f'{name}-{k}': v.reshape(1,-1).tolist()[0] for k,v in d._asdict().items()}
 
             df = pd.DataFrame.from_dict(d, orient='columns')
             merged_data = pd.concat([merged_data, df], axis=1)
@@ -179,7 +188,7 @@ def upload_plt_plot(fig: plt.Figure, filename: str):
     NOTE: must be called BEFORE call to plt.show() otherwise saved file will
       be blank
     """
-    path = DIR_RESULTS / filename
+    path = DIR_OUT / filename
 
     fig.savefig(path, bbox_inches='tight')
     return path
