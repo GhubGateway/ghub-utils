@@ -12,7 +12,7 @@ FORMAT_DATA_IN = ('.p', '.csv')
 FORMAT_IMG_OUT = ('png', 'jpg', 'pdf')
 FORMAT_DATA_OUT = ('csv',)
 
-DIR_PROJECT = Path(__file__).parent.parent
+DIR_PROJECT = Path(__file__).parent.parent.parent
 DIR_SRC = DIR_PROJECT / 'src'
 DIR_BIN = DIR_PROJECT / 'bin'
 DIR_SAMPLE_DATA = DIR_PROJECT / 'data'
