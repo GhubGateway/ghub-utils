@@ -1,6 +1,6 @@
 from pathlib import Path
 from time import sleep
-from typing import List, Callable
+from typing import List, Callable, Dict
 
 import ipywidgets as pwidg
 import matplotlib.pyplot as plt
@@ -9,6 +9,48 @@ from numpy import ndarray
 from pandas import DataFrame
 
 from . import files
+
+
+class OptionToggle(pwidg.HBox):
+    """Widget with multiple buttons that trigger a function on press"""
+    def __init__(self, label: str, options: list, **kwargs):
+        """
+        :param options: list of button names
+        :param kwargs:
+        """
+        label_desc = pwidg.Label(label)
+
+        children = [label_desc,]
+        for o in options:
+            btn = pwidg.Button(description=o)
+            children.append(btn)
+
+        super().__init__(children=children, **kwargs)
+
+    def on_click(self, btn_map: Dict[str, Callable]):
+        """
+        Register a function to trigger on click
+        :param btn_map: dictionary of {button description: on click function}
+        """
+        for bname, func in btn_map.items():
+            for b in self.children:
+                if b.description == bname:
+                    b.on_click(func)
+
+    def click(self, btn_desc: str):
+        for b in self.children:
+            if b.description == btn_desc:
+                b.click()
+
+    def disable(self, btn_desc):
+        for c in self.children:
+            if c.description == btn_desc:
+                c.disabled = True
+
+    def enable(self, btn_desc):
+        for c in self.children:
+            if c.description == btn_desc:
+                c.disabled = False
 
 
 class DataSelector(pwidg.VBox):
@@ -289,242 +331,6 @@ class DataDownloader(ResultsDownloader):
             f"window.open('{path}', 'Download', '_blank')"
         )
         display(js)
-
-
-class ParamsForm(pwidg.VBox):
-    """
-    Box for p, q, num parameters to be used in FormConfigIO
-    """
-    LAYOUT_BOX = pwidg.Layout(
-        display='flex',
-        width='100%',
-    )
-    LAYOUT_LABEL = pwidg.Layout(
-        width='50%',
-    )
-    LAYOUT_TEXT = pwidg.Layout(
-        width='50%',
-    )
-
-    def __init__(self,
-                 p_val: int,
-                 q_val: int,
-                 num_val: int,
-                 **kwargs):
-        # degree of bases
-        label_p = pwidg.Label(
-            value='Degree of bases:',
-            layout=self.LAYOUT_LABEL,
-            style={'description_width': 'initial'}
-        )
-        text_p = pwidg.BoundedIntText(
-            value=p_val,
-            min=2, max=5, step=1,
-            # description='Degree of bases:',
-            layout=self.LAYOUT_TEXT,
-            # style=self.STYLE_LABEL
-        )
-        p = pwidg.HBox((label_p, text_p), layout=self.LAYOUT_BOX)
-
-        # order of penalty
-        label_q = pwidg.Label(
-            value='Order of penalty:',
-            layout=self.LAYOUT_LABEL,
-            style={'description_width': 'initial'}
-        )
-        text_q = pwidg.BoundedIntText(
-            value=q_val,
-            min=1, max=p_val-1, step=1,
-            # description='Order of penalty:',
-            layout=self.LAYOUT_TEXT,
-            # style=self.STYLE_LABEL
-        )
-        q = pwidg.HBox((label_q, text_q), layout=self.LAYOUT_BOX)
-
-        def link_q(change):
-            max = change['new']
-            text_q.max = max - 1
-        text_p.observe(link_q, names='value')
-
-        # TODO 8/21: any bounds for num? Also verify the meaning of this variable
-        # number of observations
-        label_num = pwidg.Label(
-            value='Number of observations:',
-            layout=self.LAYOUT_LABEL,
-            style={'description_width': 'initial'}
-        )
-        text_num = pwidg.BoundedIntText(
-            value=num_val,
-            min=1, max=9999, step=1, # arbitrary max
-            # description='Number of observations:',
-            layout=self.LAYOUT_TEXT,
-            # style=self.STYLE_LABEL
-        )
-        num = pwidg.HBox((label_num, text_num), layout=self.LAYOUT_BOX)
-
-        children = (p, q, num)
-        super().__init__(children=children, **kwargs)
-
-    @property
-    def p_value(self):
-        return self.children[0].children[1].value
-    @property
-    def q_value(self):
-        return self.children[1].children[1].value
-    @property
-    def num_value(self):
-        return self.children[2].children[1].value
-
-
-class ParamsFormVar(ParamsForm):
-    def __init__(self,
-                 p_val: int,
-                 q_val: int,
-                 num_val: int,
-                 lam_val: float,
-                 err_val: float,
-                 **kwargs):
-        super().__init__(
-            p_val=p_val, q_val=q_val, num_val=num_val,
-            **kwargs
-        )
-
-        lambda_label = pwidg.Label(
-            value='Lambda variance:',
-            layout=self.LAYOUT_LABEL,
-            style={'description_width': 'initial'}
-        )
-        lambda_text = pwidg.BoundedFloatText(
-            value=lam_val, min=0.0, step=0.1,
-        )
-        lambda_var = pwidg.HBox(
-            (lambda_label, lambda_text), layout=self.LAYOUT_BOX
-        )
-
-        error_label = pwidg.Label(
-            value='Error variance:',
-            layout=self.LAYOUT_LABEL,
-            style={'description_width': 'initial'}
-        )
-        error_text = pwidg.BoundedFloatText(
-            value=err_val, min=0.0, step=0.1,
-        )
-        error_var = pwidg.HBox(
-            (error_label, error_text), layout=self.LAYOUT_BOX
-        )
-
-        self.children = (*self.children, lambda_var, error_var)
-
-    @property
-    def lam_value(self):
-        return self.children[3].children[1].value
-    @property
-    def error_value(self):
-        return self.children[4].children[1].value
-
-
-class ParamsFormScale(ParamsForm):
-    def __init__(self,
-                 p_val: int,
-                 q_val: int,
-                 num_val: int,
-                 scale1_val: float,
-                 scale2_val: float,
-                 **kwargs):
-        super().__init__(
-            p_val=p_val, q_val=q_val, num_val=num_val,
-            **kwargs
-        )
-
-        s1_label = pwidg.Label(
-            value='Scaling threshold 1:',
-            layout=self.LAYOUT_LABEL,
-            style={'description_width': 'initial'}
-        )
-        s1_text = pwidg.BoundedFloatText(
-            value=scale1_val, min=0.0, step=0.1,
-        )
-        s1 = pwidg.HBox(
-            (s1_label, s1_text), layout=self.LAYOUT_BOX
-        )
-
-        s2_label = pwidg.Label(
-            value='Scaling threshold 2:',
-            layout=self.LAYOUT_LABEL,
-            style={'description_width': 'initial'}
-        )
-        s2_text = pwidg.BoundedFloatText(
-            value=scale2_val, min=0.0, step=0.1,
-        )
-        s2 = pwidg.HBox(
-            (s2_label, s2_text), layout=self.LAYOUT_BOX
-        )
-
-        self.children = (*self.children, s1, s2)
-
-    @property
-    def scale1_value(self):
-        return self.children[3].children[1].value
-    @property
-    def scale2_value(self):
-        return self.children[4].children[1].value
-
-
-class ParamsPlot(pwidg.Accordion):
-    def __init__(self,
-                 title: str,
-                 xlabel: str,
-                 ylabel: str,
-                 params_label='Plot labels',
-                 **kwargs):
-        self._text_title = title
-        self._text_x = xlabel
-        self._text_y = ylabel
-
-        self._text_title = pwidg.Text(
-            value=title,
-            placeholder='enter plot title',
-            description='Title:'
-        )
-        self._text_x = pwidg.Text(
-            value=xlabel,
-            placeholder='enter plot x-axis label',
-            description='Label x:'
-        )
-        self._text_y = pwidg.Text(
-            value=ylabel,
-            placeholder='enter plot y-axis label',
-            description='Label y:'
-        )
-        box_text = pwidg.VBox(
-            children=[self._text_title, self._text_x, self._text_y]
-        )
-
-        # everything under 1 accordion
-        children = [box_text,]
-        super().__init__(children=children, selected_index=None, **kwargs)
-        super().set_title(0, params_label)
-
-    @property
-    def title(self):
-        return self._text_title.value
-    @title.setter
-    def title(self, title):
-        self._text_title.value = title
-
-    @property
-    def label_x(self):
-        return self._text_x.value
-    @label_x.setter
-    def label_x(self, label):
-        self._text_x.value = label
-
-    @property
-    def label_y(self):
-        return self._text_y.value
-    @label_y.setter
-    def label_y(self, label):
-        self._text_y.value = label
 
 
 class FormConfigIO(pwidg.VBox):
