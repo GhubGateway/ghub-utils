@@ -73,12 +73,17 @@ atexit.register(clear_temp)
 atexit.register(clear_results)
 
 
-def get_path_relative_to(a: Path, b: Path):
+def get_path_relative_to(a: Union[str, Path], b: Union[str, Path]):
     """
     Get a path to @a relative to @b, including '..' where moving up the tree is
       necessary; required for opening javascript windows
       REF: https://stackoverflow.com/a/43613742/13557629
     """
+    if isinstance(a, str):
+        a = Path(fr'{a}')
+    if isinstance(b, str):
+        b = Path(fr'{b}')
+
     return Path(os.path.relpath(a, b))
 
 
